@@ -25,7 +25,7 @@ public class PercolationStats {
         }
         this.mean = StdStats.mean(results);
         this.stddev = StdStats.stddev(results);
-        double temp = 1.96/Math.sqrt(trials);
+        double temp = 1.96*this.stddev/Math.sqrt(trials);
         this.confidenceLo = mean - temp;
         this.confidenceHi = mean + temp;
     }
@@ -55,7 +55,7 @@ public class PercolationStats {
         int n = Integer.parseInt(args[0]);
         int t  = Integer.parseInt(args[1]);
         if (n <= 0 || t <= 0)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("both arguments N and T must be greater than 1");
         PercolationStats stats = new PercolationStats(n, t);
         System.out.printf("mean                    = %g\nstddev                  = %g\n95%% confidence interval" +
                 " = [%g, %g]\n", stats.mean(), stats.stddev(), stats.confidenceLo(), stats.confidenceHi());
