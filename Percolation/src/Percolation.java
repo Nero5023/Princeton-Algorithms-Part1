@@ -1,8 +1,6 @@
 /**
  * Created by Nero on 17/3/17.
  */
-import java.lang.IllegalArgumentException;
-import java.lang.IndexOutOfBoundsException;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -14,14 +12,14 @@ public class Percolation {
     private int downSiteIndex;
 
     // create n-by-n grid, with all sites blocked
-    public Percolation(int n) throws IllegalArgumentException {
+    public Percolation(int n) {
         if (n <= 0)
             throw new IllegalArgumentException();
         // sitsUF's n*n site is up virtual site
         //        n*n+1 site is down virtual site
         sitesUF = new WeightedQuickUnionUF(n*n + 2);
-        sitesIsOpen = new boolean[n];
-        for (int i = 0; i < n; i++)
+        sitesIsOpen = new boolean[n*n];
+        for (int i = 0; i < n*n; i++)
             sitesIsOpen[i] = false;
         side = n;
         upSiteIndex = side*side;
@@ -29,7 +27,9 @@ public class Percolation {
     }
 
     // convert the row and col to index
-    private int rowColToIndex(int row, int col) throws IndexOutOfBoundsException {
+    private int rowColToIndex(int row, int col) {
+        row = row - 1;
+        col = col - 1;
         int index = row * side + col;
         if (index >= side*side || index < 0 || row < 0 || row >= side || col < 0 || col >= side)
             throw new IndexOutOfBoundsException();
@@ -37,10 +37,10 @@ public class Percolation {
     }
 
     // add element to array
-    private int[] appendArray(int[] array, int x){
+    private int[] appendArray(int[] array, int x) {
         int[] result = new int[array.length + 1];
 
-        for(int i = 0; i < array.length; i++)
+        for (int i = 0; i < array.length; i++)
             result[i] = array[i];
 
         result[result.length - 1] = x;
@@ -50,16 +50,18 @@ public class Percolation {
 
     // return the legal index aournd the given index
     private int[] indexsAround(int row, int col) {
-        int[][] directions = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         int [] aroundIndexs = {};
         for (int[] dir : directions) {
             try {
                 int index = rowColToIndex(row+dir[0], col+dir[1]);
                 aroundIndexs = appendArray(aroundIndexs, index);
-            }catch (IndexOutOfBoundsException) {
+            }
+            catch (IndexOutOfBoundsException e) {
                 continue;
             }
         }
+
         return aroundIndexs;
     }
 
@@ -67,28 +69,32 @@ public class Percolation {
     public    void open(int row, int col) {
         if (isOpen(row, col))
             return;
-        int index = rowColToIndex(row,col);
+        int index = rowColToIndex(row, col);
         sitesIsOpen[index] = true;
-        if (row == 0)
+        if (row == 1)
             sitesUF.union(index, upSiteIndex);
-        if (row == downSiteIndex-1)
+        if (row == side)
             sitesUF.union(index, downSiteIndex);
         for (int aroundIndex : indexsAround(row, col)) {
-            if (sitesIsOpen[aroundIndex]){
+            if (sitesIsOpen[aroundIndex]) {
                 sitesUF.union(aroundIndex, index);
             }
         }
     }
 
     // is site (row, col) open?
-    public boolean isOpen(int row, int col)  {
+    public boolean isOpen(int row, int col) {
         int index = rowColToIndex(row, col);
         return sitesIsOpen[index];
     }
 
     // is site (row, col) full?
     public boolean isFull(int row, int col) {
-        return !isOpen(row, col);
+        int index = rowColToIndex(row, col);
+        if row != 1 {
+
+        }
+        return sitesUF.connected(index, upSiteIndex);
     }
 
     // number of open sites
