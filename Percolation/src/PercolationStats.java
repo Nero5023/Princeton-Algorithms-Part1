@@ -13,6 +13,8 @@ public class PercolationStats {
 
     // perform trials independent experiments on an n-by-n grid
     public PercolationStats(int n, int trials)  {
+        if (n <= 0 || trials <= 0)
+            throw new IllegalArgumentException("both arguments N and T must be greater than 1");
         double[] results = new double[trials];
         for (int i = 0; i < trials; i++) {
             Percolation percolation = new Percolation(n);
@@ -54,8 +56,6 @@ public class PercolationStats {
     public static void main(String[] args) {
         int n = Integer.parseInt(args[0]);
         int t  = Integer.parseInt(args[1]);
-        if (n <= 0 || t <= 0)
-            throw new IllegalArgumentException("both arguments N and T must be greater than 1");
         PercolationStats stats = new PercolationStats(n, t);
         System.out.printf("mean                    = %g\nstddev                  = %g\n95%% confidence interval" +
                 " = [%g, %g]\n", stats.mean(), stats.stddev(), stats.confidenceLo(), stats.confidenceHi());
