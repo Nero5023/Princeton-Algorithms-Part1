@@ -6,6 +6,7 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 public class Percolation {
 
     private WeightedQuickUnionUF sitesUF;
+    private WeightedQuickUnionUF sidesFullUF;
     private boolean[] sitesIsOpen;
     private int side;
     private int upSiteIndex;
@@ -18,6 +19,7 @@ public class Percolation {
         // sitsUF's n*n site is up virtual site
         //        n*n+1 site is down virtual site
         sitesUF = new WeightedQuickUnionUF(n*n + 2);
+        sidesFullUF = new WeightedQuickUnionUF(n*n + 1);
         sitesIsOpen = new boolean[n*n];
         for (int i = 0; i < n*n; i++)
             sitesIsOpen[i] = false;
@@ -71,15 +73,24 @@ public class Percolation {
             return;
         int index = rowColToIndex(row, col);
         sitesIsOpen[index] = true;
-        if (row == 1)
+        if (row == 1) {
             sitesUF.union(index, upSiteIndex);
-        if (row == side)
+            sidesFullUF.union(index, upSiteIndex);
+        }
+
+
+        //!this.percolates() this situation is prevent after percolates, every
+        //sites open down will be full, but not fix 在下面按了几个后, 另一块区域联通是的,原来的区域 full 了
+        if (row == side  && !this.percolates())
             sitesUF.union(index, downSiteIndex);
+
         for (int aroundIndex : indexsAround(row, col)) {
             if (sitesIsOpen[aroundIndex]) {
                 sitesUF.union(aroundIndex, index);
+                sidesFullUF.union(aroundIndex, index);
             }
         }
+
     }
 
     // is site (row, col) open?
@@ -91,11 +102,15 @@ public class Percolation {
     // is site (row, col) full?
     public boolean isFull(int row, int col) {
         int index = rowColToIndex(row, col);
-        if row != 1 {
-
-        }
-        return sitesUF.connected(index, upSiteIndex);
+        return sidesFullUF.connected(index, upSiteIndex);
+//        return sitesUF.connected(index, upSiteIndex);
     }
+
+//    private boolean isFull(int index) {
+//        if (index >= side*side || index < 0)
+//            throw new IllegalArgumentException();
+//        return sitesUF.connected(index, upSiteIndex);
+//    }
 
     // number of open sites
     public     int numberOfOpenSites() {
