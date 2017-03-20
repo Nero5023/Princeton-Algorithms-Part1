@@ -6,27 +6,27 @@ class WeightQuickUnionUF():
         self.size   = [1 for _ in range(0, n)]
         self.maxCom = [i for i in range(0, n)] 
 
-    def validate(p):
+    def validate(self, p):
         n = len(self.parent)
         if p < 0 or p > n:
             raise IndexError("Index out of bound", p)
 
-    def find(p):
+    def find(self, p):
         self.validate()
         while p != self.parent[p]:
             p = parent[p]
         return p
 
-    def findMax(p):
+    def findMax(self, p):
         self.validate()
         while p != self.maxCom[p]:
             p = self.maxCom[p]
         return p
 
-    def connected(p, q):
+    def connected(self, p, q):
         return self.find(p) == self.find(q)
 
-    def union(p, q):
+    def union(self, p, q):
         rootP = find(p);
         rootQ = find(q);
         if rootQ == rootP:
