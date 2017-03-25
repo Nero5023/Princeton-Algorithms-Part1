@@ -1,9 +1,10 @@
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 /**
  * Created by Nero on 17/3/24.
  */
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class Deque<Item> implements Iterable<Item> {
     private Item[] items;
     private int head;
@@ -12,7 +13,8 @@ public class Deque<Item> implements Iterable<Item> {
     // construct an empty deque
     public Deque() {
         items = (Item[]) new Object[1];
-        head = tail = 0;
+        head = 0;
+        tail = 0;
     }
 
     // is the deque empty?
@@ -48,7 +50,7 @@ public class Deque<Item> implements Iterable<Item> {
         if (head == 0)
             head = items.length - 1;
         else
-            head = (head - 1)%items.length;
+            head = (head - 1) % items.length;
         items[head] = item;
     }
 
@@ -56,7 +58,7 @@ public class Deque<Item> implements Iterable<Item> {
     public void addLast(Item item) {
         prepareAddingItem(item, false);
         items[tail] = item;
-        tail = (tail + 1)%items.length;
+        tail = (tail + 1) % items.length;
     }
 
     private void prepareRemoveItem() {
@@ -71,7 +73,7 @@ public class Deque<Item> implements Iterable<Item> {
         prepareRemoveItem();
         Item item = items[head];
         items[head] = null;
-        head = (head + 1)%items.length;
+        head = (head + 1) % items.length;
         return item;
     }
 
@@ -81,7 +83,7 @@ public class Deque<Item> implements Iterable<Item> {
         if (tail == 0)
             tail = items.length - 1;
         else
-            tail = (tail - 1)%items.length;
+            tail = (tail - 1) % items.length;
         Item item = items[tail];
         items[tail] = null;
         return item;
@@ -102,7 +104,7 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
         for (int i = head; i < tail; i++) {
-            copy[i-head] = items[i%items.length];
+            copy[i-head] = items[i % items.length];
         }
         head = 0;
         tail = size;
@@ -124,7 +126,7 @@ public class Deque<Item> implements Iterable<Item> {
             if (!hasNext())
                 throw new NoSuchElementException();
             Item item = items[i];
-            i = (i+1)%items.length;
+            i = (i+1) % items.length;
             return item;
         }
     }
