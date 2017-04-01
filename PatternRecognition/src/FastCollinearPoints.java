@@ -1,33 +1,37 @@
-import edu.princeton.cs.algs4.StdOut;
+/******************************************************************************
+ *  Compilation:  javac-algs4  FastCollinearPoints.java
+ *  Execution:    java-algs4  FastCollinearPoints
+ *  Dependencies: none
+ *
+ *  Pattern Recognition: if 4 or more points are on a line.
+ *  For use on Coursera, Algorithms Part I programming assignment.
+ *
+ ******************************************************************************/
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Nero on 17/3/27.
- */
+
 public class FastCollinearPoints {
     // finds all line segments containing 4 or more points
 
     private LineSegment[] segments;
-    public FastCollinearPoints(Point[] points){
+    public FastCollinearPoints(Point[] points) {
         if (points == null)
             throw new NullPointerException("Arguments Points is null");
         for (Point p: points) {
-            if (p == null){
+            if (p == null) {
                 throw new NullPointerException("Point is null");
             }
         }
         checkDuplicatedEntries(points);
 
         List<LineSegment> segmentsList = new ArrayList<LineSegment>();
-        for(int i = 0; i < points.length; i++) {
+        for (int i = 0; i < points.length; i++) {
             Point point = points[i];
 //            Point[] sortedPoints = FastCollinearPoints.moveOriginToPoint(points, point);
             Point[] sortedPoints = Arrays.copyOf(points, points.length);
-            StdOut.println(point);
             Arrays.sort(sortedPoints, sortedPoints[i].slopeOrder());
 
             Point lastPoint = null;
@@ -77,24 +81,10 @@ public class FastCollinearPoints {
                 return;
             }
         }
-        if (isAdded == false)
+        if (!isAdded)
             segmentsList.add(segment);
     }
 
-    private static Point[] moveOriginToPoint(Point[] points, Point target) {
-        Point[] res = new Point[points.length-1];
-        int j = 0;
-        for (int i = 0; i < points.length; i++) {
-            if (target.compareTo(points[i]) != 0) {
-                res[j] = points[i].deletePoint(target);
-                j++;
-            }
-        }
-        if (j < points.length - 1)
-            throw new IllegalArgumentException("Have repeat point");
-        return res;
-
-    }
 
 
     // the number of line segments

@@ -63,7 +63,7 @@ public class Point implements Comparable<Point> {
             return Double.NEGATIVE_INFINITY;
         if (this.x == that.x)
             return Double.POSITIVE_INFINITY;
-        return (that.y - this.y)*1.0/((that.x - this.x)*1.0);
+        return (that.y - this.y) / (double) (that.x - this.x);
     }
 
     /**
@@ -79,8 +79,8 @@ public class Point implements Comparable<Point> {
      *         argument point
      */
     public int compareTo(Point that) {
-       if (this.y < that.y || (this.y == that.y && this.x < that.x))
-           return -1;
+        if (this.y < that.y || (this.y == that.y && this.x < that.x))
+            return -1;
         if (this.y == that.y && this.x == that.x)
             return 0;
         return 1;
@@ -88,14 +88,13 @@ public class Point implements Comparable<Point> {
 
     private class PointSlopeComparator implements Comparator<Point> {
         public int compare(Point x0, Point x1) {
-            double comp = x0.slopeTo(x1);
             double slopeDiff = slopeTo(x0) - slopeTo(x1);
-            if (slopeDiff < 0)
-                return -1;
-            else if (comp == 0)
-                return 0;
-            else
+            if (slopeDiff > 0)
                 return 1;
+            else if (slopeDiff < 0)
+                return -1;
+            else
+                return 0;
         }
     }
 
@@ -149,9 +148,6 @@ public class Point implements Comparable<Point> {
         return new Point(this.x - p.x, this.y - p.y);
     }
 
-    public Point addPoint(Point p) {
-        return new Point(this.x + p.x, this.y + p.y);
-    }
 
     /**
      * Unit tests the Point data type.

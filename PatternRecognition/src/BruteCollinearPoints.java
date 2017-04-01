@@ -1,6 +1,14 @@
-import edu.princeton.cs.algs4.StdOut;
+/******************************************************************************
+ *  Compilation:  javac-algs4  BruteCollinearPoints.java
+ *  Execution:    java-algs4  BruteCollinearPoints
+ *  Dependencies: none
+ *
+ *  Pattern Recognition: if 4 points are on a line.
+ *  For use on Coursera, Algorithms Part I programming assignment.
+ *
+ ******************************************************************************/
 
-import javax.sound.sampled.Line;
+import edu.princeton.cs.algs4.StdOut;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
