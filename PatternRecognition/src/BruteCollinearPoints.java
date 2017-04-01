@@ -10,32 +10,34 @@ public class BruteCollinearPoints {
 
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points)  {
+
+        checkDuplicatedEntries(points);
+
         List<LineSegment> segmentsList = new ArrayList<LineSegment>();
 
         if (points == null)
             throw new NullPointerException("Auguments is null");
-        for (int p = 0; p < points.length; p++){
-            for (int q = p + 1; q < points.length; q++) {
-                for (int r = q + 1; r < points.length; r++) {
-                    for (int s = r + 1; s < points.length; s++) {
+
+        Point[] pointsCopy = Arrays.copyOf(points, points.length);
+        Arrays.sort(pointsCopy);
+
+        for (int p = 0; p < pointsCopy.length - 3; p++) {
+            for (int q = p + 1; q < pointsCopy.length - 2; q++) {
+                for (int r = q + 1; r < pointsCopy.length - 1; r++) {
+                    for (int s = r + 1; s < pointsCopy.length; s++) {
                         if (points[q] == null || points[q] == null || points[r] == null || points[s] == null) {
                             throw new NullPointerException("Point in points list is null");
                         }
-                        double pq = points[p].slopeTo(points[q]);
-                        double pr = points[p].slopeTo(points[r]);
-                        double ps = points[p].slopeTo(points[s]);
-                        if (pq == Double.NEGATIVE_INFINITY || pr == Double.NEGATIVE_INFINITY || ps == Double.NEGATIVE_INFINITY)
-                            throw new IllegalArgumentException("Have repeat pint");
-                        if (Math.abs(pq) == Math.abs(pr) && Math.abs(pq) == Math.abs(pr) && Math.abs(pq) == Math.abs(ps)) {
-                            Point[] seqmentPoints = {points[p], points[q], points[r], points[s]};
-                            Arrays.sort(seqmentPoints);
-                            segmentsList.add(new LineSegment(seqmentPoints[0], seqmentPoints[3]));
+                        if (pointsCopy[p].slopeTo(pointsCopy[q]) == pointsCopy[p].slopeTo(pointsCopy[r]) &&
+                                pointsCopy[p].slopeTo(pointsCopy[q]) == pointsCopy[p].slopeTo(pointsCopy[s])) {
+                            segmentsList.add(new LineSegment(pointsCopy[p], pointsCopy[s]));
                         }
-
                     }
                 }
             }
         }
+
+
         segments = new LineSegment[segmentsList.size()];
         segmentsList.toArray(segments);
     }
@@ -48,6 +50,16 @@ public class BruteCollinearPoints {
     // the line segments
     public LineSegment[] segments() {
         return segments;
+    }
+
+    private void checkDuplicatedEntries(Point[] points) {
+        for (int i = 0; i < points.length - 1; i++) {
+            for (int j = i + 1; j < points.length; j++) {
+                if (points[i].compareTo(points[j]) == 0) {
+                    throw new IllegalArgumentException("Duplicated entries in given points.");
+                }
+            }
+        }
     }
 
 

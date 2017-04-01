@@ -63,7 +63,7 @@ public class Point implements Comparable<Point> {
             return Double.NEGATIVE_INFINITY;
         if (this.x == that.x)
             return Double.POSITIVE_INFINITY;
-        return (that.y - this.y)*1.0/((that.x - this.x));
+        return (that.y - this.y)*1.0/((that.x - this.x)*1.0);
     }
 
     /**
@@ -89,7 +89,26 @@ public class Point implements Comparable<Point> {
     private class PointSlopeComparator implements Comparator<Point> {
         public int compare(Point x0, Point x1) {
             double comp = x0.slopeTo(x1);
-            if(comp < 0)
+            double slopeDiff = slopeTo(x0) - slopeTo(x1);
+            if (slopeDiff < 0)
+                return -1;
+            else if (comp == 0)
+                return 0;
+            else
+                return 1;
+        }
+    }
+
+    private static class PointTargetSlopeComparator implements Comparator<Point> {
+        private Point targetP;
+
+        public PointTargetSlopeComparator(Point p) {
+            this.targetP = p;
+        }
+
+        public int compare(Point x0, Point x1) {
+            double comp = this.targetP.slopeTo(x1);
+            if (comp < 0)
                 return -1;
             else if (comp == 0)
                 return 0;
@@ -109,6 +128,10 @@ public class Point implements Comparable<Point> {
         return new PointSlopeComparator();
     }
 
+    public static Comparator<Point> slopeTargetOrder(Point p) {
+        return new PointTargetSlopeComparator(p);
+    }
+
 
     /**
      * Returns a string representation of this point.
@@ -120,6 +143,14 @@ public class Point implements Comparable<Point> {
     public String toString() {
         /* DO NOT MODIFY */
         return "(" + x + ", " + y + ")";
+    }
+
+    public Point deletePoint(Point p) {
+        return new Point(this.x - p.x, this.y - p.y);
+    }
+
+    public Point addPoint(Point p) {
+        return new Point(this.x + p.x, this.y + p.y);
     }
 
     /**
