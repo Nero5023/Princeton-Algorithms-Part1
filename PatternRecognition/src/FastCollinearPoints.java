@@ -8,6 +8,7 @@
  *
  ******************************************************************************/
 
+import javax.swing.text.Segment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,11 +29,12 @@ public class FastCollinearPoints {
         checkDuplicatedEntries(points);
 
         List<LineSegment> segmentsList = new ArrayList<LineSegment>();
+        List<Point[]> fromEndPoints = new ArrayList<Point[]>();
+        Point[] sortedPoints = Arrays.copyOf(points, points.length);
         for (int i = 0; i < points.length; i++) {
             Point point = points[i];
-//            Point[] sortedPoints = FastCollinearPoints.moveOriginToPoint(points, point);
-            Point[] sortedPoints = Arrays.copyOf(points, points.length);
-            Arrays.sort(sortedPoints, sortedPoints[i].slopeOrder());
+
+            Arrays.sort(sortedPoints, point.slopeOrder());
 
             Point lastPoint = null;
             List<Point> samePoints = new ArrayList<Point>();
@@ -61,7 +63,7 @@ public class FastCollinearPoints {
                     samePoints.toArray(samePointsArray);
                     Arrays.sort(samePointsArray);
 //                    segmentsList.add(new LineSegment(samePointsArray[0], samePointsArray[samePointsSize-1]));
-                    addSegmentIfNew(segmentsList, new LineSegment(samePointsArray[0], samePointsArray[samePointsSize-1]));
+                    addSegmentIfNew(segmentsList, fromEndPoints, samePointsArray[0], samePointsArray[samePointsSize-1]);
                 }
 
                 // restruct the point list
@@ -73,17 +75,17 @@ public class FastCollinearPoints {
         segmentsList.toArray(segments);
     }
 
-    private void addSegmentIfNew(List<LineSegment> segmentsList, LineSegment segment) {
-        boolean isAdded = false;
-        for (LineSegment s: segmentsList) {
-            if (s.toString().compareTo(segment.toString()) == 0) {
-                isAdded = true;
+    private void addSegmentIfNew(List<LineSegment> segmentsList,List<Point[]> endPoints, Point from, Point to) {
+        for (Point[] ps: endPoints) {
+            if (ps[0].compareTo(from) == 0 && ps[1].compareTo(to) == 0) {
                 return;
             }
         }
-        if (!isAdded)
-            segmentsList.add(segment);
+        Point[] fromto = {from, to};
+        endPoints.add(fromto);
+        segmentsList.add(new LineSegment(from, to));
     }
+
 
 
 
@@ -94,7 +96,7 @@ public class FastCollinearPoints {
 
     // the line segments
     public LineSegment[] segments() {
-        return segments;
+        return Arrays.copyOf(segments, numberOfSegments());
     }
 
     private void checkDuplicatedEntries(Point[] points) {
