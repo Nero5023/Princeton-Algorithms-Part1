@@ -131,11 +131,9 @@ public class Board {
             strBuffer.append("\n");
             for (int i = 0; i < dimension(); i++) {
                 for (int j = 0; j < dimension(); j++) {
+                    strBuffer.append(String.format("%2d", blocks[i][j]));
                     if (j != dimension() - 1) {
-                        strBuffer.append(blocks[i][j]);
                         strBuffer.append(" ");
-                    }else {
-                        strBuffer.append(blocks[i][j]);
                     }
                 }
                 strBuffer.append("\n");

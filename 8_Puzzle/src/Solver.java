@@ -20,7 +20,6 @@ public class Solver {
         pq.insert(new SearchNode(initial, initial.manhattan(), 0, null));
 
         lastSearchNode = aStarSearch(pq);
-        StdOut.println("");
 //        MinPQ<SearchNode> pq1 = new MinPQ<SearchNode>();
 //        pq1.insert(new );
     }
@@ -42,7 +41,7 @@ public class Solver {
 // solve a slider puzzle (given below)
     public static void main(String[] args) {
 //        In in = new In(args[0]);
-        In in = new In("/Users/Nero/Documents/onlineCourse/Princeton-Algorithms-Part1/8_Puzzle/src/8puzzle/puzzle3x3-unsolvable.txt");
+        In in = new In("/Users/Nero/Documents/onlineCourse/Princeton-Algorithms-Part1/8_Puzzle/src/8puzzle/puzzle3x3-03.txt");
         int n = in.readInt();
         int[][] blocks = new int[n][n];
         for (int i = 0; i < n; i++)
