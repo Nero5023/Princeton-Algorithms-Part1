@@ -36,7 +36,7 @@ public class Board {
                     sum += 1;
             }
         }
-        return sum + move;
+        return sum;
     }
 
     // sum of Manhattan distances between blocks and goal
@@ -47,13 +47,13 @@ public class Board {
                 int block = blocks[i][j];
                 if (block == 0)
                     continue;
-                int target = i * dimension() + j + 1;
+                int target = block;
                 int targetI = (target - 1) / dimension();
                 int targetJ = (target - 1) % dimension();
                 sum += (Math.abs(targetI - i) + Math.abs(targetJ - j));
             }
         }
-        return sum + move;
+        return sum;
     }
 
     // is this board the goal board?
@@ -162,16 +162,14 @@ public class Board {
         }
 
         public List<BoardIndex> indexsAround() {
-            int[] offset = {-1, 1};
+            int[][] offsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
             List<BoardIndex> res = new ArrayList<BoardIndex>();
-            for (int x: offset){
-                for (int y: offset) {
-                    try {
-                        BoardIndex pos = new BoardIndex(row + x, col + y, dim);
-                        res.add(pos);
-                    }catch (IndexOutOfBoundsException e) {
-                        continue;
-                    }
+            for (int[] offset: offsets){
+                try {
+                    BoardIndex pos = new BoardIndex(row + offset[0], col + offset[1], dim);
+                    res.add(pos);
+                }catch (IndexOutOfBoundsException e) {
+                    continue;
                 }
             }
             return res;
