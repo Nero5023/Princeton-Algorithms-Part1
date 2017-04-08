@@ -6,10 +6,17 @@ import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Solver {
     private Board initalBoard;
 
     private SearchNode lastSearchNode;
+
+    private List<Board> solution;
+
+    private boolean isSolvable;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
@@ -19,29 +26,40 @@ public class Solver {
         MinPQ<SearchNode> pq = new MinPQ<SearchNode>();
         pq.insert(new SearchNode(initial, initial.manhattan(), 0, null));
 
-        lastSearchNode = aStarSearch(pq);
-//        MinPQ<SearchNode> pq1 = new MinPQ<SearchNode>();
-//        pq1.insert(new );
+        MinPQ<SearchNode> pq1 = new MinPQ<SearchNode>();
+        Board twinBoard = initial.twin();
+        pq1.insert(new SearchNode(twinBoard, twinBoard.manhattan(), 0, null));
+
+        lastSearchNode = aStarSearch2(pq, pq1);
+        solution = new ArrayList<>();
+        solutionList(lastSearchNode, solution);
+        isSolvable = (solution.get(0) == initial);
     }
 
     // is the initial board solvable?
     public boolean isSolvable() {
-        return true;
+        return isSolvable;
     }
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        return lastSearchNode.moves;
+        if (isSolvable())
+            return lastSearchNode.moves;
+        else
+            return -1;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        return null;
+        if (isSolvable())
+            return solution;
+        else
+            return null;
     }
 // solve a slider puzzle (given below)
     public static void main(String[] args) {
-//        In in = new In(args[0]);
-        In in = new In("/Users/Nero/Documents/onlineCourse/Princeton-Algorithms-Part1/8_Puzzle/src/8puzzle/puzzle3x3-03.txt");
+        In in = new In(args[0]);
+//        In in = new In("/Users/Nero/Documents/onlineCourse/Princeton-Algorithms-Part1/8_Puzzle/src/8puzzle/puzzle3x3-31.txt");
         int n = in.readInt();
         int[][] blocks = new int[n][n];
         for (int i = 0; i < n; i++)
@@ -53,44 +71,79 @@ public class Solver {
         Solver solver = new Solver(initial);
 
         // print solution to standard output
-//        if (!solver.isSolvable())
-//            StdOut.println("No solution possible");
-//        else {
-//            StdOut.println("Minimum number of moves = " + solver.moves());
-//            for (Board board : solver.solution())
-//                StdOut.println(board);
-//        }
+        if (!solver.isSolvable())
+            StdOut.println("No solution possible");
+        else {
+            StdOut.println("Minimum number of moves = " + solver.moves());
+            for (Board board : solver.solution())
+                StdOut.println(board);
+        }
 
-        solver.printSloutition();
     }
 
-    private SearchNode aStarSearch(MinPQ<SearchNode> pq) {
+    private SearchNode aStarSearch(MinPQ<SearchNode> pq, MinPQ<SearchNode> anOtherPq) {
+
         SearchNode node = pq.delMin();
-        if (node.board.isGoal())
+        if (node.board.isGoal()) {
+//            aStarSearch(anOtherPq, pq);
             return node;
+        }
         for (Board nebBoard: node.board.neighbors()) {
-            if (node.previous == null || !node.previous.board.equals(nebBoard)) {
+            if (node.previous == null || !isAlreadyInSolution(node, nebBoard)) {
                 pq.insert(new SearchNode(nebBoard, nebBoard.manhattan(), node.moves+1, node));
             }
         }
-        return aStarSearch(pq);
+        return aStarSearch(anOtherPq, pq);
     }
 
-    private void printSloutitionIter(SearchNode sNode) {
+    private boolean isAlreadyInSolution(SearchNode currentSN, Board boardToCheck) {
+        while (currentSN.previous != null) {
+            if (currentSN.previous.board.equals(boardToCheck))
+                return true;
+            currentSN = currentSN.previous;
+        }
+        return false;
+    }
+
+    private SearchNode aStarSearch2(MinPQ<SearchNode> pq, MinPQ<SearchNode> anOtherPq) {
+        SearchNode sn;
+        SearchNode snTwin;
+        while (!pq.min().board.isGoal() && !anOtherPq.min().board.isGoal()) {
+            sn = pq.delMin();
+            for (Board negBoard: sn.board.neighbors()) {
+                if (!isAlreadyInSolution(sn, negBoard))
+                    pq.insert(new SearchNode(negBoard, negBoard.manhattan(), sn.moves+1, sn));
+            }
+
+            snTwin = anOtherPq.delMin();
+            for (Board negBoard: snTwin.board.neighbors()) {
+                if (!isAlreadyInSolution(snTwin, negBoard))
+                    anOtherPq.insert(new SearchNode(negBoard, negBoard.manhattan(), snTwin.moves+1, snTwin));
+            }
+        }
+
+//        return aStarSearch(anOtherPq, pq);
+        sn = pq.delMin();
+        snTwin = anOtherPq.delMin();
+        if (sn.board.isGoal()) {
+            return sn;
+        }
+        else {
+            return snTwin;
+        }
+    }
+
+    private void solutionList(SearchNode sNode, List<Board> list) {
         if (sNode.previous != null)
-            printSloutitionIter(sNode.previous);
-        StdOut.println(sNode.board.toString());
-    }
-
-    private void printSloutition() {
-        printSloutitionIter(lastSearchNode);
+            solutionList(sNode.previous, list);
+        list.add(sNode.board);
     }
 
     private class SearchNode implements Comparable<SearchNode> {
-        public Board board;
+        private Board board;
         private int manhattan;
-        public int moves;
-        public SearchNode previous;
+        private int moves;
+        private SearchNode previous;
 
         public SearchNode(Board board, int manhattan, int moves, SearchNode previous) {
             this.board = board;

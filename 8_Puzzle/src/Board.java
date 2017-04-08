@@ -2,20 +2,15 @@
  * Created by Nero on 17/4/7.
  */
 
-import java.lang.Math.*;
-import java.util.*;
-
-import edu.princeton.cs.algs4.StdRandom;
-import org.omg.PortableServer.POA;
-
-import javax.swing.text.Position;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Board {
     private int[][] blocks;
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
-        this.blocks = blocks;
+        this.blocks = cloneArray(blocks);
     }
 
     // board dimension n
@@ -77,24 +72,42 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of blocks
     public Board twin() {
-        int i0 = StdRandom.uniform(dimension());
-        int j0 = StdRandom.uniform(dimension());
-        int i1 = StdRandom.uniform(dimension());
-        int j1 = StdRandom.uniform(dimension());
-        if (i0 == i1 && j0 == j1)
-            return twin();
+//        int i = StdRandom.uniform(dimension());
+//        int j = StdRandom.uniform(dimension());
+//        if (j+1 >= dimension())
+//            return twin();
+//        if (blocks[i][j] == 0 || blocks[i][j+1] == 0)
+//            return twin();
+//        int[][] newBlocks = cloneArray(this.blocks);
+//        exchange(newBlocks, i, j, i, j+1);
+//        return new Board(newBlocks);
+
         int[][] newBlocks = cloneArray(this.blocks);
-        exchange(newBlocks, i0, j0, i1, j1);
+
+        int i = 0;
+        int j = 0;
+        while (newBlocks[i][j] == 0 || newBlocks[i][j + 1] == 0) {
+            j++;
+            if (j >= newBlocks.length - 1) {
+                i++;
+                j = 0;
+            }
+        }
+
+        exchange(newBlocks, i, j, i, j + 1);
         return new Board(newBlocks);
+
     }
 
     // does this board equal y?
     public boolean equals(Object y) {
+        if (y == null)
+            return false;
         if (this == y)
             return true;
 
-        if (y instanceof Board) {
-            Board aBoard = (Board)y;
+        if (y.getClass() == Board.class) {
+            Board aBoard = (Board) y;
             if (aBoard.dimension() != this.dimension())
                 return false;
             for (int i = 0; i < dimension(); i++) {
@@ -125,36 +138,36 @@ public class Board {
     }
 
     // string representation of this board (in the output format specified below)
-        public String toString() {
-            StringBuffer strBuffer = new StringBuffer("");
-            strBuffer.append(dimension());
-            strBuffer.append("\n");
-            for (int i = 0; i < dimension(); i++) {
-                for (int j = 0; j < dimension(); j++) {
-                    strBuffer.append(String.format("%2d", blocks[i][j]));
-                    if (j != dimension() - 1) {
-                        strBuffer.append(" ");
-                    }
+    public String toString() {
+        StringBuffer strBuffer = new StringBuffer("");
+        strBuffer.append(dimension());
+        strBuffer.append("\n");
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                strBuffer.append(String.format("%2d", blocks[i][j]));
+                if (j != dimension() - 1) {
+                    strBuffer.append(" ");
                 }
-                strBuffer.append("\n");
             }
-            return strBuffer.toString();
+            strBuffer.append("\n");
         }
-//
+        return strBuffer.toString();
+    }
+
+
 //    public static void main(String[] args) // unit tests (not graded)
-
-
 
     private class BoardIndex {
         private int dim;
-        public int row;
-        public int col;
+        private int row;
+        private int col;
         public BoardIndex(int row, int col, int dim) {
             if (row >= 0 && row < dim && col >= 0 && col < dim) {
                 this.dim = dim;
                 this.row = row;
                 this.col = col;
-            } else {
+            }
+            else {
                 throw new IndexOutOfBoundsException();
             }
         }
@@ -162,11 +175,12 @@ public class Board {
         public List<BoardIndex> indexsAround() {
             int[][] offsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
             List<BoardIndex> res = new ArrayList<BoardIndex>();
-            for (int[] offset: offsets){
+            for (int[] offset: offsets) {
                 try {
                     BoardIndex pos = new BoardIndex(row + offset[0], col + offset[1], dim);
                     res.add(pos);
-                }catch (IndexOutOfBoundsException e) {
+                }
+                catch (IndexOutOfBoundsException e) {
                     continue;
                 }
             }
@@ -195,8 +209,6 @@ public class Board {
         return target;
     }
 
-
-
     // exchange two element in the n*n block
     private static void exchange(int[][] arr, int i0, int j0, int i1, int j1) {
         validIndex(arr, i0, j0);
@@ -206,7 +218,7 @@ public class Board {
         arr[i1][j1] = temp;
     }
 
-    private static void validIndex(int[][] arr, int i, int j){
+    private static void validIndex(int[][] arr, int i, int j) {
         if (i >= 0 && i < arr.length && j >= 0 && j < arr[i].length)
             return;
         throw new IndexOutOfBoundsException();
