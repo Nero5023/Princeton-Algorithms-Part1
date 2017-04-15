@@ -93,21 +93,21 @@ public class KdTree {
         drawIter(root);
     }
 
-    private List<Point2D> rangIter(Node node, RectHV rect) {
-        if (node == null) {
+    private List<Point2D> rangeIter(Node node, RectHV rect) {
+        if (node == null || !node.rect.intersects(rect)) {
             List<Point2D> list = new ArrayList<>();
             return list;
         }
         int cmp = node.comp(rect);
         if (cmp < 0) { // rect is up or right
-            return rangIter(node.right, rect);
+            return rangeIter(node.right, rect);
         }else if (cmp >0) {
-            return rangIter(node.left, rect);
+            return rangeIter(node.left, rect);
         }else {
-            List<Point2D> leftList = rangIter(node.left, rect);
-            List<Point2D> rightList = rangIter(node.right, rect);
+            List<Point2D> leftList = rangeIter(node.left, rect);
+            List<Point2D> rightList = rangeIter(node.right, rect);
             leftList.addAll(rightList);
-            if (rect.distanceTo(node.point) == 0) {
+            if (rect.contains(node.point)) {
                 leftList.add(node.point);
             }
             return leftList;
@@ -116,7 +116,7 @@ public class KdTree {
 
     // all points that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
-        return rangIter(root, rect);
+        return rangeIter(root, rect);
     }
 
     public  Point2D nearestIter(Node node, Point2D p, double minDistance, Point2D minP) {
