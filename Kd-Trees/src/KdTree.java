@@ -23,9 +23,17 @@ public class KdTree {
 
     // number of points in the set
     public               int size() {
-        if (isEmpty())
+//        if (isEmpty())
+//            return 0;
+//        return root.size;
+        return sizeOfNode(root);
+    }
+
+    private int sizeOfNode(Node node) {
+        if (node == null) {
             return 0;
-        return root.size;
+        }
+        return node.size;
     }
 
     private Node put(Node root, Point2D point, int level) {
@@ -43,7 +51,7 @@ public class KdTree {
         }
         root.left = left;
         root.right = right;
-        root.size = left.size + right.size + 1;
+        root.size = sizeOfNode(right) + sizeOfNode(left) + 1;
         return root;
     }
     // add the point to the set (if it is not already in the set)
@@ -110,7 +118,7 @@ public class KdTree {
     }
 
     public  Point2D nearestIter(Node node, Point2D p, double minDistance, Point2D minP) {
-        if (p == null)
+        if (node == null)
             return minP;
         double disToP = node.point.distanceTo(p);
         if (disToP < minDistance) {
