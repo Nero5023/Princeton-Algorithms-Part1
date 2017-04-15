@@ -43,13 +43,15 @@ public class KdTree {
         Node left = root.left;
         Node right = root.right;
         int cmp = root.comp(point);
-        if (cmp <= 0) { // point is larger than center
+        if (cmp <= 0 && !root.point.equals(point)) { // point is larger than center
             right = put(right, point, level+1);
-            right.setRect(root.rightRect());
+            if (right != null)
+                right.setRect(root.rightRect());
         }
         else if (cmp > 0) {
             left = put(left, point, level+1);
-            left.setRect(root.leftRect());
+            if (left != null)
+                left.setRect(root.leftRect());
         }
         root.left = left;
         root.right = right;
@@ -66,7 +68,7 @@ public class KdTree {
     private boolean contains(Node node, Point2D point) {
         if (node == null)
             return false;
-        int cmp = node.point.compareTo(point)
+        int cmp = node.point.compareTo(point);
         if (cmp == 0)
             return true;
         if (cmp < 0) { // point larger
