@@ -42,12 +42,10 @@ public class KdTree {
         Node left = root.left;
         Node right = root.right;
         int cmp = root.comp(point);
-        if (cmp < 0) { // point is larger than center
+        if (cmp <= 0) { // point is larger than center
             right = put(right, point, level+1);
         }else if (cmp > 0) {
             left = put(left, point, level+1);
-        }else {
-            return root;
         }
         root.left = left;
         root.right = right;
