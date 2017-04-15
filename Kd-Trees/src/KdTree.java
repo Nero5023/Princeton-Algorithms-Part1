@@ -4,6 +4,8 @@
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.StdDraw;
+import org.w3c.dom.css.Rect;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -44,8 +46,10 @@ public class KdTree {
         int cmp = root.comp(point);
         if (cmp <= 0) { // point is larger than center
             right = put(right, point, level+1);
+            right.setRect(root.rightRect());
         }else if (cmp > 0) {
             left = put(left, point, level+1);
+            left.setRect(root.leftRect());
         }
         root.left = left;
         root.right = right;
@@ -79,7 +83,7 @@ public class KdTree {
     private void drawIter(Node node) {
         if (node == null)
             return;
-        node.point.draw();
+        node.draw();
         drawIter(node.left);
         drawIter(node.right);
     }
@@ -161,6 +165,7 @@ class Node {
     public Node left;
     public Node right;
     public Point2D point;
+    public RectHV rect;
 
     private int level;
     int size;
@@ -171,6 +176,7 @@ class Node {
         this.point = point;
         this.level = level;
         size = 1;
+        rect = new RectHV(0,0,1,1);
     }
 
     // Vertical case   -1 node's point is one the left of given point
@@ -256,6 +262,45 @@ class Node {
 
     public boolean isVertical() {
         return level % 2 == 0;
+    }
+
+    public RectHV leftRect() {
+        if (left != null)
+            return left.rect;
+        if(isVertical()) {
+            return new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
+        }else {
+            return new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
+        }
+    }
+
+    public RectHV rightRect() {
+        if (right != null) {
+            return right.rect;
+        }else {
+            if (isVertical()) {
+                return new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
+            }else {
+                return new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
+            }
+        }
+    }
+
+    public void setRect(RectHV aRect) {
+        if (left == null && right == null) {
+            rect = aRect;
+        }
+    }
+
+    public void draw() {
+        point.draw();
+        if (isVertical()) {
+            StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.line(point.x(), rect.ymin(), point.x(), rect.ymax());
+        }else {
+            StdDraw.setPenColor(StdDraw.BLUE);
+            StdDraw.line(rect.xmin(), point.y(), rect.xmax(),point.y());
+        }
     }
 
 }
