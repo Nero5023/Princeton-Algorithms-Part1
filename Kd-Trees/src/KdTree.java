@@ -130,11 +130,13 @@ public class KdTree {
         Node first = node.firstToGo(p);
         Node second = node.secondToGo(p);
         if (first != null) {
-            assert second != null;
+
             Point2D nereastP1 = nearestIter(first, p, minDistance, minP);
-            double newMinDistance1 = nereastP1.distanceSquaredTo(p);
-            double nerestToSplitLine = node.nereastDisToSplitLine(p);
-            if (newMinDistance1 < nerestToSplitLine) {
+            double newMinDistance1 = nereastP1.distanceTo(p);
+            if (second == null)
+                return nereastP1;
+            double minInTheory = second.rect.distanceTo(p);
+            if (newMinDistance1 < minInTheory) {
                 return nereastP1;
             }else {
                 Point2D nereastP2 = nearestIter(second, p, newMinDistance1, nereastP1);
@@ -142,15 +144,15 @@ public class KdTree {
             }
         }else {
             Point2D nereastP1 = nearestIter(node.left, p, minDistance, minP);
-            double newMinDistance1 = nereastP1.distanceSquaredTo(p);
-            Point2D nereastP2 = nearestIter(second, p, newMinDistance1, nereastP1);
+            double newMinDistance1 = nereastP1.distanceTo(p);
+            Point2D nereastP2 = nearestIter(node.right, p, newMinDistance1, nereastP1);
             return nereastP2;
         }
     }
     // a nearest neighbor in the set to point p; null if the set is empty
     public           Point2D nearest(Point2D p) {
         checkArgValid(p);
-        return nearestIter(root, p, 1000, null);
+        return nearestIter(root, p, root.point.distanceTo(p), root.point);
     }
 //
 //    public static void main(String[] args)                  // unit testing of the methods (optional)
