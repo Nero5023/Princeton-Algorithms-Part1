@@ -68,15 +68,17 @@ public class KdTree {
     private boolean contains(Node node, Point2D point) {
         if (node == null)
             return false;
-        int cmp = node.point.compareTo(point);
-        if (cmp == 0)
-            return true;
+        int cmp = node.comp(point);
         if (cmp < 0) { // point larger
             return contains(node.right, point);
         }
-        else { // point smaller
+        else if (cmp > 0) { // point smaller
             return contains(node.left, point);
         }
+        // cmp = 0
+        if (!node.point.equals(point))
+            return contains(node.right, point);
+        return true;
     }
     // does the set contain point p?
     public           boolean contains(Point2D p)   {
