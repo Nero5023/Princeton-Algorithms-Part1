@@ -5,7 +5,6 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
-import org.w3c.dom.css.Rect;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -47,7 +46,8 @@ public class KdTree {
         if (cmp <= 0) { // point is larger than center
             right = put(right, point, level+1);
             right.setRect(root.rightRect());
-        }else if (cmp > 0) {
+        }
+        else if (cmp > 0) {
             left = put(left, point, level+1);
             left.setRect(root.leftRect());
         }
@@ -66,12 +66,13 @@ public class KdTree {
     private boolean contains(Node node, Point2D point) {
         if (node == null)
             return false;
-        int cmp = node.comp(point);
+        int cmp = node.point.compareTo(point)
         if (cmp == 0)
             return true;
-        if (cmp < 0) { //point larger
+        if (cmp < 0) { // point larger
             return contains(node.right, point);
-        }else { // point smaller
+        }
+        else { // point smaller
             return contains(node.left, point);
         }
     }
@@ -101,9 +102,11 @@ public class KdTree {
         int cmp = node.comp(rect);
         if (cmp < 0) { // rect is up or right
             return rangeIter(node.right, rect);
-        }else if (cmp >0) {
+        }
+        else if (cmp > 0) {
             return rangeIter(node.left, rect);
-        }else {
+        }
+        else {
             List<Point2D> leftList = rangeIter(node.left, rect);
             List<Point2D> rightList = rangeIter(node.right, rect);
             leftList.addAll(rightList);
@@ -119,7 +122,7 @@ public class KdTree {
         return rangeIter(root, rect);
     }
 
-    public  Point2D nearestIter(Node node, Point2D p, double minDistance, Point2D minP) {
+    private  Point2D nearestIter(Node node, Point2D p, double minDistance, Point2D minP) {
         if (node == null)
             return minP;
         double disToP = node.point.distanceTo(p);
@@ -138,11 +141,13 @@ public class KdTree {
             double minInTheory = second.rect.distanceTo(p);
             if (newMinDistance1 < minInTheory) {
                 return nereastP1;
-            }else {
+            }
+            else {
                 Point2D nereastP2 = nearestIter(second, p, newMinDistance1, nereastP1);
                 return nereastP2;
             }
-        }else {
+        }
+        else {
             Point2D nereastP1 = nearestIter(node.left, p, minDistance, minP);
             double newMinDistance1 = nereastP1.distanceTo(p);
             Point2D nereastP2 = nearestIter(node.right, p, newMinDistance1, nereastP1);
@@ -154,155 +159,167 @@ public class KdTree {
         checkArgValid(p);
         return nearestIter(root, p, root.point.distanceTo(p), root.point);
     }
-//
+
 //    public static void main(String[] args)                  // unit testing of the methods (optional)
 
     private void checkArgValid(Object p) {
         if (p == null)
             throw new NullPointerException();
     }
-}
 
-class Node {
-    public Node left;
-    public Node right;
-    public Point2D point;
-    public RectHV rect;
 
-    private int level;
-    int size;
+    // Node
+    private class Node {
+        public Node left;
+        public Node right;
+        public Point2D point;
+        public RectHV rect;
 
-    public Node(Point2D point, int level) {
-        left = null;
-        right = null;
-        this.point = point;
-        this.level = level;
-        size = 1;
-        rect = new RectHV(0,0,1,1);
-    }
+        private int level;
+        int size;
 
-    // Vertical case   -1 node's point is one the left of given point
-    //                  1 node's point is one the right of the given point
-    //                  0 same x
-    // Horizontal case -1 node's point is below of the given point
-    //                  1 node's point is above of the given point
-    //                  0 same y
-    public int comp(Point2D p) {
-        double diff;
-        if (isVertical())
-            diff = point.x() - p.x();
-        else
-            diff = point.y() - p.y();
-        if (diff < 0)
-            return -1;
-        else if (diff == 0)
-            return 0;
-        else
-            return 1;
-    }
-
-    // in the nearrest fun return the which child first to travel
-    // if return is null should go to both
-    public Node firstToGo(Point2D targetPoint) {
-        int cmp = comp(targetPoint);
-        if (cmp < 0) { // target point on the right/up of the node
-            return right;
-        }else if (cmp > 0) {
-            return left;
-        }else {
-            return null;
+        public Node(Point2D point, int level) {
+            left = null;
+            right = null;
+            this.point = point;
+            this.level = level;
+            size = 1;
+            rect = new RectHV(0, 0, 1, 1);
         }
-    }
 
-    public Node secondToGo(Point2D targetPoint) {
-        Node first = firstToGo(targetPoint);
-        if (first == null)
-            return null;
-        if (first == left) {
-            return right;
-        }else {
-            return left;
-        }
-    }
-
-    // if Vertical return subtraction of x
-    //    Horizontal return subtraction of y
-    public double nereastDisToSplitLine(Point2D p) {
-        if (isVertical()) {
-            return Math.abs(point.x() - p.x());
-        }else {
-            return Math.abs(point.y() - p.y());
-        }
-    }
-
-    // comp the node's x(vertical) or node's y(Horizontal)
-    // Vertical case:  1 means rect is on the left of node
-    //                -1 means rect is on the right of node
-    //                 0 means node's x is between minX and maxX
-    // Horizontal case:  1 means rect is below the node
-    //                  -1 means rect is above the node
-    //                   0 means node's y is between minY and maxY
-    public int comp(RectHV rect) {
-        if(isVertical()) {
-            if (point.x() < rect.xmin())
-                return -1;
-            else if (point.x() > rect.xmax())
-                return 1;
+        // Vertical case   -1 node's point is one the left of given point
+        //                  1 node's point is one the right of the given point
+        //                  0 same x
+        // Horizontal case -1 node's point is below of the given point
+        //                  1 node's point is above of the given point
+        //                  0 same y
+        public int comp(Point2D p) {
+            double diff;
+            if (isVertical())
+                diff = point.x() - p.x();
             else
-                return 0;
-        }else {
-            if (point.y() < rect.ymin())
+                diff = point.y() - p.y();
+            if (diff < 0)
                 return -1;
-            else if (point.y() > rect.ymax())
-                return 1;
-            else
+            else if (diff == 0)
                 return 0;
+            else
+                return 1;
         }
-    }
 
-
-
-    public boolean isVertical() {
-        return level % 2 == 0;
-    }
-
-    public RectHV leftRect() {
-        if (left != null)
-            return left.rect;
-        if(isVertical()) {
-            return new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
-        }else {
-            return new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
-        }
-    }
-
-    public RectHV rightRect() {
-        if (right != null) {
-            return right.rect;
-        }else {
-            if (isVertical()) {
-                return new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
-            }else {
-                return new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
+        // in the nearrest fun return the which child first to travel
+        // if return is null should go to both
+        public Node firstToGo(Point2D targetPoint) {
+            int cmp = comp(targetPoint);
+            if (cmp < 0) { // target point on the right/up of the node
+                return right;
+            }
+            else if (cmp > 0) {
+                return left;
+            }
+            else {
+                return null;
             }
         }
-    }
 
-    public void setRect(RectHV aRect) {
-        if (left == null && right == null) {
-            rect = aRect;
+        public Node secondToGo(Point2D targetPoint) {
+            Node first = firstToGo(targetPoint);
+            if (first == null)
+                return null;
+            if (first == left) {
+                return right;
+            }
+            else {
+                return left;
+            }
         }
-    }
 
-    public void draw() {
-        point.draw();
-        if (isVertical()) {
-            StdDraw.setPenColor(StdDraw.RED);
-            StdDraw.line(point.x(), rect.ymin(), point.x(), rect.ymax());
-        }else {
-            StdDraw.setPenColor(StdDraw.BLUE);
-            StdDraw.line(rect.xmin(), point.y(), rect.xmax(),point.y());
+        // if Vertical return subtraction of x
+        //    Horizontal return subtraction of y
+        public double nereastDisToSplitLine(Point2D p) {
+            if (isVertical()) {
+                return Math.abs(point.x() - p.x());
+            }
+            else {
+                return Math.abs(point.y() - p.y());
+            }
         }
-    }
 
+        // comp the node's x(vertical) or node's y(Horizontal)
+        // Vertical case:  1 means rect is on the left of node
+        //                -1 means rect is on the right of node
+        //                 0 means node's x is between minX and maxX
+        // Horizontal case:  1 means rect is below the node
+        //                  -1 means rect is above the node
+        //                   0 means node's y is between minY and maxY
+        public int comp(RectHV rect) {
+            if (isVertical()) {
+                if (point.x() < rect.xmin())
+                    return -1;
+                else if (point.x() > rect.xmax())
+                    return 1;
+                else
+                    return 0;
+            }
+            else {
+                if (point.y() < rect.ymin())
+                    return -1;
+                else if (point.y() > rect.ymax())
+                    return 1;
+                else
+                    return 0;
+            }
+        }
+
+
+
+        public boolean isVertical() {
+            return level % 2 == 0;
+        }
+
+        public RectHV leftRect() {
+            if (left != null)
+                return left.rect;
+            if (isVertical()) {
+                return new RectHV(rect.xmin(), rect.ymin(), point.x(), rect.ymax());
+            }
+            else {
+                return new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), point.y());
+            }
+        }
+
+        public RectHV rightRect() {
+            if (right != null) {
+                return right.rect;
+            }
+            else {
+                if (isVertical()) {
+                    return new RectHV(point.x(), rect.ymin(), rect.xmax(), rect.ymax());
+                }
+                else {
+                    return new RectHV(rect.xmin(), point.y(), rect.xmax(), rect.ymax());
+                }
+            }
+        }
+
+        public void setRect(RectHV aRect) {
+            if (left == null && right == null) {
+                rect = aRect;
+            }
+        }
+
+        public void draw() {
+            point.draw();
+            if (isVertical()) {
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.line(point.x(), rect.ymin(), point.x(), rect.ymax());
+            }
+            else {
+                StdDraw.setPenColor(StdDraw.BLUE);
+                StdDraw.line(rect.xmin(), point.y(), rect.xmax(), point.y());
+            }
+        }
+
+    }
 }
+
